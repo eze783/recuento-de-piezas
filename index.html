@@ -1,0 +1,72 @@
+ <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Recuento de Piezas</title>
+
+    <!-- Conectamos nuestro archivo de estilos -->
+    <link rel="stylesheet" href="estilos.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>Recuento de Piezas</h1>
+        <p>Gestión de artículos y despieces</p>
+    </header>
+
+    <main class="contenedor">
+
+        <div class="menu">
+
+            <button class="boton" id="btnArticulos">
+                <span class="icono">📦</span>
+                Artículos
+            </button>
+
+            <button class="boton">
+                <span class="icono">🔧</span>
+                Piezas
+            </button>
+
+            <button class="boton" id="btnNuevoRecuento">
+    <span class="icono">🔢</span>
+    Nuevo recuento
+</button>
+<button
+    class="boton"
+    onclick="mostrarHistorial()">
+
+    <span class="icono">📋</span>
+    Historial
+
+</button>
+            <button class="boton">
+                <span class="icono">⚠️</span>
+                Faltantes
+            </button>
+
+            <button class="boton">
+                <span class="icono">📥</span>
+                Entradas
+            </button>
+
+            <button class="boton">
+                <span class="icono">📤</span>
+                Salidas
+            </button>
+
+        </div>
+
+        <!-- Aquí aparecerán las diferentes pantallas -->
+        <section id="contenido"></section>
+
+    </main>
+
+    <!-- Conectamos nuestro archivo JavaScript -->
+    <script src="app.js"></script>
+
+</body>
+</html>
