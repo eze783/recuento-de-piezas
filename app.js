@@ -1765,3 +1765,687 @@ function verRecuento(indice) {
 
     `;
 }
+
+function mostrarPiezas() {
+
+    contenido.innerHTML = `
+        <div class="pantalla">
+
+            <div class="encabezado-pantalla">
+                <h2>🔧 Piezas</h2>
+                <p>Listado de piezas utilizadas en los artículos</p>
+            </div>
+
+            <div class="tabla-contenedor">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Descripción</th>
+                            <th>Artículos donde se utiliza</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="listaPiezas">
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <div class="acciones-formulario">
+
+                <button
+                    class="boton-secundario"
+                    onclick="volverAlInicio()">
+
+                    ← Volver
+
+                </button>
+
+            </div>
+
+        </div>
+    `;
+
+    const piezas = {};
+
+    articulos.forEach(articulo => {
+
+        if (!articulo.piezas) {
+            return;
+        }
+
+        articulo.piezas.forEach(pieza => {
+
+            if (!piezas[pieza.codigo]) {
+
+                piezas[pieza.codigo] = {
+                    codigo: pieza.codigo,
+                    descripcion: pieza.descripcion,
+                    articulos: []
+                };
+
+            }
+
+            piezas[pieza.codigo].articulos.push(articulo.codigo);
+
+        });
+
+    });
+
+    const lista = document.getElementById("listaPiezas");
+
+    const piezasArray = Object.values(piezas);
+
+    if (piezasArray.length === 0) {
+
+        lista.innerHTML = `
+            <tr>
+                <td colspan="3">
+                    No hay piezas cargadas todavía.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+    piezasArray.forEach(pieza => {
+
+        const articulosUnicos = [...new Set(pieza.articulos)];
+
+        lista.innerHTML += `
+            <tr>
+
+                <td>
+                    <strong>${pieza.codigo}</strong>
+                </td>
+
+                <td>
+                    ${pieza.descripcion}
+                </td>
+
+                <td>
+                    ${articulosUnicos.join(", ")}
+                </td>
+
+            </tr>
+        `;
+
+    });
+
+}
+function mostrarFaltantes() {
+
+    contenido.innerHTML = `
+        <div class="pantalla">
+
+            <div class="encabezado-pantalla">
+                <h2>⚠️ Faltantes</h2>
+                <p>Piezas que faltan para completar los recuentos</p>
+            </div>
+
+            <div class="tabla-contenedor">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Pieza</th>
+                            <th>Necesarias</th>
+                            <th>Encontradas</th>
+                            <th>Faltantes</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="listaFaltantes">
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <div class="acciones-formulario">
+
+                <button
+                    class="boton-secundario"
+                    onclick="volverAlInicio()">
+
+                    ← Volver
+
+                </button>
+
+            </div>
+
+        </div>
+    `;
+
+    const lista = document.getElementById("listaFaltantes");
+
+    const recuentos = JSON.parse(
+        localStorage.getItem("recuentos")
+    ) || [];
+
+    let hayFaltantes = false;
+
+    recuentos.forEach(recuento => {
+
+        recuento.piezas.forEach(pieza => {
+
+            if (pieza.faltantes > 0) {
+
+                hayFaltantes = true;
+
+                lista.innerHTML += `
+                    <tr>
+
+                        <td>
+                            <strong>${pieza.codigo}</strong>
+                            - ${pieza.descripcion}
+                        </td>
+
+                        <td>
+                            ${pieza.necesarias}
+                        </td>
+
+                        <td>
+                            ${pieza.encontradas}
+                        </td>
+
+                        <td>
+                            <span class="faltante">
+                                ${pieza.faltantes}
+                            </span>
+                        </td>
+
+                    </tr>
+                `;
+
+            }
+
+        });
+
+    });
+
+    if (!hayFaltantes) {
+
+        lista.innerHTML = `
+            <tr>
+                <td colspan="4">
+                    No hay piezas faltantes.
+                </td>
+            </tr>
+        `;
+
+    }
+
+}
+function mostrarEntradas() {
+
+    contenido.innerHTML = `
+        <div class="pantalla">
+
+            <div class="encabezado-pantalla">
+                <h2>📥 Entradas</h2>
+                <p>Registro de ingreso de piezas al stock</p>
+            </div>
+
+            <div class="encabezado-pantalla">
+                <h3>📋 Entradas registradas</h3>
+                <p>Historial de ingresos de piezas</p>
+            </div>
+
+            <div class="tabla-contenedor">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Pieza</th>
+                            <th>Cantidad</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="listaEntradas">
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <div class="formulario">
+
+                <label>
+                    Pieza
+                </label>
+
+                <select id="piezaEntrada">
+
+                    <option value="">
+                        Seleccionar pieza
+                    </option>
+
+                </select>
+
+                <label>
+                    Cantidad
+                </label>
+
+                <input
+                    type="number"
+                    id="cantidadEntrada"
+                    min="1"
+                    placeholder="Ingrese la cantidad"
+                >
+
+                <div class="acciones-formulario">
+
+                    <button
+                        class="boton-principal"
+                        onclick="registrarEntrada()">
+
+                        📥 Registrar entrada
+
+                    </button>
+
+                    <button
+                        class="boton-secundario"
+                        onclick="volverAlInicio()">
+
+                        ← Volver
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+    `;
+
+    const selector = document.getElementById("piezaEntrada");
+
+    const piezas = {};
+
+    articulos.forEach(articulo => {
+
+        if (!articulo.piezas) {
+            return;
+        }
+
+        articulo.piezas.forEach(pieza => {
+
+            if (!piezas[pieza.codigo]) {
+
+                piezas[pieza.codigo] = {
+                    codigo: pieza.codigo,
+                    descripcion: pieza.descripcion
+                };
+
+            }
+
+        });
+
+    });
+
+    Object.values(piezas).forEach(pieza => {
+
+        selector.innerHTML += `
+            <option value="${pieza.codigo}">
+                ${pieza.codigo} - ${pieza.descripcion}
+            </option>
+        `;
+
+    });
+
+    const listaEntradas = document.getElementById("listaEntradas");
+
+    const entradas = JSON.parse(
+        localStorage.getItem("entradas")
+    ) || [];
+
+    if (entradas.length === 0) {
+
+        listaEntradas.innerHTML = `
+            <tr>
+                <td colspan="3">
+                    No hay entradas registradas todavía.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+    entradas.forEach(entrada => {
+
+        const pieza = Object.values(piezas).find(
+            pieza => pieza.codigo === entrada.codigo
+        );
+
+        const descripcion = pieza
+            ? pieza.descripcion
+            : "";
+
+        listaEntradas.innerHTML += `
+            <tr>
+
+                <td>
+                    <strong>${entrada.codigo}</strong>
+                    ${descripcion ? " - " + descripcion : ""}
+                </td>
+
+                <td>
+                    ${entrada.cantidad}
+                </td>
+
+                <td>
+                    ${entrada.fecha}
+                </td>
+
+            </tr>
+        `;
+
+    });
+}
+function registrarEntrada() {
+
+    const codigo = document.getElementById("piezaEntrada").value;
+    const cantidad = Number(document.getElementById("cantidadEntrada").value);
+
+    if (!codigo) {
+
+        alert("Seleccioná una pieza.");
+
+        return;
+    }
+
+    if (!cantidad || cantidad <= 0) {
+
+        alert("Ingresá una cantidad válida.");
+
+        return;
+    }
+
+    const piezaSeleccionada = codigo;
+
+    const entradas = JSON.parse(
+        localStorage.getItem("entradas")
+    ) || [];
+
+    entradas.push({
+
+        codigo: piezaSeleccionada,
+
+        cantidad: cantidad,
+
+        fecha: new Date().toLocaleString()
+
+    });
+
+    localStorage.setItem(
+        "entradas",
+        JSON.stringify(entradas)
+    );
+
+    alert("Entrada registrada correctamente.");
+
+    document.getElementById("piezaEntrada").value = "";
+    document.getElementById("cantidadEntrada").value = "";
+
+}
+function mostrarSalidas() {
+
+    contenido.innerHTML = `
+        <div class="pantalla">
+
+            <div class="encabezado-pantalla">
+                <h2>📤 Salidas</h2>
+                <p>Registro de salida de piezas del stock</p>
+            </div>
+
+            <div class="formulario">
+
+                <label>
+                    Pieza
+                </label>
+
+                <select id="piezaSalida">
+
+                    <option value="">
+                        Seleccionar pieza
+                    </option>
+
+                </select>
+
+                <label>
+                    Cantidad
+                </label>
+
+                <input
+                    type="number"
+                    id="cantidadSalida"
+                    min="1"
+                    placeholder="Ingrese la cantidad"
+                >
+
+                <div class="acciones-formulario">
+
+                    <button
+                        class="boton-principal"
+                        onclick="registrarSalida()">
+
+                        📤 Registrar salida
+
+                    </button>
+
+                    <button
+                        class="boton-secundario"
+                        onclick="volverAlInicio()">
+
+                        ← Volver
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            <div class="encabezado-pantalla">
+                <h3>📋 Salidas registradas</h3>
+                <p>Historial de salidas de piezas</p>
+            </div>
+
+            <div class="tabla-contenedor">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Pieza</th>
+                            <th>Cantidad</th>
+                            <th>Fecha</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="listaSalidas">
+                    </tbody>
+
+                </table>
+
+            </div>
+        </div>
+    `;
+
+    const selector = document.getElementById("piezaSalida");
+
+    const piezas = {};
+
+    articulos.forEach(articulo => {
+
+        if (!articulo.piezas) {
+            return;
+        }
+
+        articulo.piezas.forEach(pieza => {
+
+            if (!piezas[pieza.codigo]) {
+
+                piezas[pieza.codigo] = {
+                    codigo: pieza.codigo,
+                    descripcion: pieza.descripcion
+                };
+
+            }
+
+        });
+
+    });
+
+    Object.values(piezas).forEach(pieza => {
+
+        selector.innerHTML += `
+            <option value="${pieza.codigo}">
+                ${pieza.codigo} - ${pieza.descripcion}
+            </option>
+        `;
+
+    });
+
+    const listaSalidas = document.getElementById("listaSalidas");
+
+    const salidas = JSON.parse(
+        localStorage.getItem("salidas")
+    ) || [];
+
+    if (salidas.length === 0) {
+
+        listaSalidas.innerHTML = `
+            <tr>
+                <td colspan="4">
+                    No hay salidas registradas todavía.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+    salidas.forEach(salida => {
+
+        const pieza = Object.values(piezas).find(
+            pieza => pieza.codigo === salida.codigo
+        );
+
+        const descripcion = pieza
+            ? pieza.descripcion
+            : "";
+
+        listaSalidas.innerHTML += `
+            <tr>
+
+                <td>
+                    <strong>${salida.codigo}</strong>
+                    ${descripcion ? " - " + descripcion : ""}
+                </td>
+
+                <td>
+                    ${salida.cantidad}
+                </td>
+
+                <td>
+                    ${salida.fecha}
+                </td>
+
+                <td>
+
+                    <button
+                        class="boton-eliminar"
+                        onclick="eliminarSalida(${salidas.indexOf(salida)})">
+
+                        🗑️ Eliminar
+
+                    </button>
+
+                </td>
+
+            </tr>
+        `;
+
+    });
+}
+function registrarSalida() {
+
+    const codigo = document.getElementById("piezaSalida").value;
+    const cantidad = Number(document.getElementById("cantidadSalida").value);
+
+    if (!codigo) {
+
+        alert("Seleccioná una pieza.");
+
+        return;
+    }
+
+    if (!cantidad || cantidad <= 0) {
+
+        alert("Ingresá una cantidad válida.");
+
+        return;
+    }
+
+    const piezaSeleccionada = codigo;
+
+    const salidas = JSON.parse(
+        localStorage.getItem("salidas")
+    ) || [];
+
+    salidas.push({
+
+        codigo: piezaSeleccionada,
+
+        cantidad: cantidad,
+
+        fecha: new Date().toLocaleString()
+
+    });
+
+    localStorage.setItem(
+        "salidas",
+        JSON.stringify(salidas)
+    );
+
+    alert("Salida registrada correctamente.");
+
+    document.getElementById("piezaSalida").value = "";
+    document.getElementById("cantidadSalida").value = "";
+
+}
+function eliminarSalida(indice) {
+
+    const salidas = JSON.parse(
+        localStorage.getItem("salidas")
+    ) || [];
+
+    const confirmar = confirm(
+        "¿Querés eliminar esta salida?"
+    );
+
+    if (!confirmar) {
+        return;
+    }
+
+    salidas.splice(indice, 1);
+
+    localStorage.setItem(
+        "salidas",
+        JSON.stringify(salidas)
+    );
+
+    mostrarSalidas();
+
+}
