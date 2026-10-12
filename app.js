@@ -137,15 +137,20 @@ function mostrarListaArticulos() {
 
                 <div>
 
-                    <h3>
-                        ${articulo.codigo}
-                    </h3>
+                   
+<h3>
+    ${articulo.codigo}
+</h3>
 
-                    <p>
-                        ${articulo.descripcion}
-                    </p>
+<p>
+    <strong>Familia:</strong>
+    ${articulo.familia || "Sin familia asignada"}
+</p>
 
-                    <p>
+<p>
+    ${articulo.descripcion}
+</p>
+
                         <strong>
                             ${articulo.piezas.length}
                         </strong>
@@ -198,7 +203,7 @@ function mostrarListaArticulos() {
 // FORMULARIO NUEVO ARTÍCULO
 // ============================================================
 
-function mostrarFormularioArticulo() {
+function mostrarFormularioArticulo() { 
 
     contenido.innerHTML = `
 
@@ -238,6 +243,21 @@ function mostrarFormularioArticulo() {
                     id="codigoArticulo"
                     placeholder="Ejemplo: ASP 245"
                 >
+
+<label for="familiaArticulo">
+    Familia del artículo
+</label>
+
+<select id="familiaArticulo">
+    <option value="">Seleccioná una familia</option>
+    <option value="ASP">ASP</option>
+    <option value="ASE">ASE</option>
+    <option value="SEA">SEA</option>
+    <option value="DBI">DBI</option>
+    <option value="DBN">DBN</option>
+    <option value="ST-1">ST-1</option>
+    <option value="ST-5">ST-5</option>
+</select>
 
 
                 <label for="descripcionArticulo">
@@ -375,6 +395,11 @@ function guardarArticulo() {
             .value
             .trim();
 
+const familia =
+    document
+        .getElementById("familiaArticulo")
+        .value;
+
 
     const descripcion =
         document
@@ -465,15 +490,18 @@ function guardarArticulo() {
     }
 
 
-    const nuevoArticulo = {
+    
+const nuevoArticulo = {
 
-        codigo: codigo,
+    codigo: codigo,
 
-        descripcion: descripcion,
+    familia: familia,
 
-        piezas: piezas
+    descripcion: descripcion,
 
-    };
+    piezas: piezas
+
+};
 
 
     articulos.push(nuevoArticulo);
@@ -562,9 +590,14 @@ function verArticulo(indice) {
 
             <div class="informacion-articulo">
 
-                <p>
+                               <p>
                     <strong>Código:</strong>
                     ${articulo.codigo}
+                </p>
+
+                <p>
+                    <strong>Familia:</strong>
+                    ${articulo.familia || "Sin familia asignada"}
                 </p>
 
                 <p>
@@ -663,7 +696,20 @@ function editarArticulo(indice) {
                     id="codigoArticulo"
                     value="${articulo.codigo}"
                 >
+                <label for="familiaArticulo">
+                    Familia del artículo
+                </label>
 
+                <select id="familiaArticulo">
+                    <option value="">Seleccioná una familia</option>
+                    <option value="ASP" ${articulo.familia === "ASP" ? "selected" : ""}>ASP</option>
+                    <option value="ASE" ${articulo.familia === "ASE" ? "selected" : ""}>ASE</option>
+                    <option value="SEA" ${articulo.familia === "SEA" ? "selected" : ""}>SEA</option>
+                    <option value="DBI" ${articulo.familia === "DBI" ? "selected" : ""}>DBI</option>
+                    <option value="DBN" ${articulo.familia === "DBN" ? "selected" : ""}>DBN</option>
+                    <option value="ST-1" ${articulo.familia === "ST-1" ? "selected" : ""}>ST-1</option>
+                    <option value="ST-5" ${articulo.familia === "ST-5" ? "selected" : ""}>ST-5</option>
+                </select>
 
                 <label for="descripcionArticulo">
                     Descripción
@@ -799,7 +845,10 @@ function actualizarArticulo(indice) {
             .getElementById("descripcionArticulo")
             .value
             .trim();
-
+    const familia =
+        document
+            .getElementById("familiaArticulo")
+            .value;
 
     if (codigo === "") {
 
@@ -883,9 +932,11 @@ function actualizarArticulo(indice) {
     }
 
 
-    articulos[indice] = {
+        articulos[indice] = {
 
         codigo: codigo,
+
+        familia: familia,
 
         descripcion: descripcion,
 
@@ -2516,4 +2567,280 @@ function mostrarPanelGeneral() {
     document.getElementById("totalPiezas").textContent =
         Object.keys(piezasPanel).length;
 
+}
+function mostrarFabricacion() {
+
+    contenido.innerHTML = `
+
+        <div class="pantalla">
+
+            <div class="encabezado-pantalla">
+
+                <div>
+
+                    <h2>🏭 Registro de fabricación</h2>
+
+                    <p>
+                        Registrá las cantidades fabricadas de cada artículo.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="formulario">
+
+                <label for="articuloFabricacion">
+                    Artículo
+                </label>
+
+                <select id="articuloFabricacion">
+
+                    <option value="">
+                        Seleccioná un artículo
+                    </option>
+
+                    ${articulos.map((articulo, indice) => `
+                        <option value="${indice}">
+                            ${articulo.codigo} - ${articulo.descripcion}
+                        </option>
+                    `).join("")}
+
+                </select>
+
+                <label for="fechaFabricacion">
+                    Fecha de fabricación
+                </label>
+
+                <input
+                    type="date"
+                    id="fechaFabricacion"
+                >
+
+                <label for="cantidadFabricada">
+                    Cantidad fabricada
+                </label>
+
+                <input
+                    type="number"
+                    id="cantidadFabricada"
+                    min="1"
+                    placeholder="Ingresá la cantidad"
+                >
+
+                <div class="acciones-formulario">
+
+                    <button
+                        class="boton-principal"
+                        onclick="guardarFabricacion()">
+
+                        💾 Guardar fabricación
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            <div id="historialFabricacion"></div>
+
+        </div>
+
+    `;
+    mostrarHistorialFabricacion();
+}
+function guardarFabricacion() {
+
+    const indiceArticulo =
+        Number(
+            document.getElementById("articuloFabricacion").value
+        );
+
+    const fecha =
+        document.getElementById("fechaFabricacion").value;
+
+    const cantidad =
+        Number(
+            document.getElementById("cantidadFabricada").value
+        );
+
+    const selector =
+        document.getElementById("articuloFabricacion");
+
+    if (selector.value === "") {
+        alert("Seleccioná un artículo.");
+        return;
+    }
+
+    if (fecha === "") {
+        alert("Ingresá la fecha de fabricación.");
+        return;
+    }
+
+    if (!cantidad || cantidad < 1 || !Number.isInteger(cantidad)) {
+        alert("Ingresá una cantidad válida, mayor que cero.");
+        return;
+    }
+
+    const articulo = articulos[indiceArticulo];
+
+    if (!articulo) {
+        alert("No se encontró el artículo seleccionado.");
+        return;
+    }
+
+    let fabricaciones =
+        JSON.parse(
+            localStorage.getItem("fabricaciones")
+        ) || [];
+
+    const nuevaFabricacion = {
+        numero: fabricaciones.length + 1,
+        articuloCodigo: articulo.codigo,
+        articuloDescripcion: articulo.descripcion,
+        fecha: fecha,
+        cantidad: cantidad
+    };
+
+    fabricaciones.push(nuevaFabricacion);
+
+    localStorage.setItem(
+        "fabricaciones",
+        JSON.stringify(fabricaciones)
+    );
+
+    alert("Fabricación registrada correctamente.");
+
+    mostrarFabricacion();
+}
+function mostrarHistorialFabricacion() {
+
+    const contenedor =
+        document.getElementById("historialFabricacion");
+
+    if (!contenedor) {
+        return;
+    }
+
+    const fabricaciones =
+        JSON.parse(
+            localStorage.getItem("fabricaciones")
+        ) || [];
+
+    if (fabricaciones.length === 0) {
+
+        contenedor.innerHTML = `
+            <div class="mensaje-vacio">
+                <h3>📋 Sin fabricaciones registradas</h3>
+                <p>Las fabricaciones que registres aparecerán aquí.</p>
+            </div>
+        `;
+
+        return;
+    }
+
+    const fabricacionesOrdenadas =
+        [...fabricaciones].sort((a, b) =>
+            b.fecha.localeCompare(a.fecha) ||
+            b.numero - a.numero
+        );
+
+    let filas = "";
+    const ultimasFabricaciones = {};
+
+    fabricacionesOrdenadas.forEach(fabricacion => {
+
+        if (!ultimasFabricaciones[fabricacion.articuloCodigo]) {
+
+            ultimasFabricaciones[fabricacion.articuloCodigo] =
+                fabricacion;
+
+        }
+
+    });
+
+    let filasUltimas = "";
+
+    Object.values(ultimasFabricaciones).forEach(fabricacion => {
+
+        const partesFecha =
+            fabricacion.fecha.split("-");
+
+        const fechaVisible =
+            partesFecha.length === 3
+                ? `${partesFecha[2]}/${partesFecha[1]}/${partesFecha[0]}`
+                : fabricacion.fecha;
+
+        filasUltimas += `
+            <tr>
+                <td>${fabricacion.articuloCodigo}</td>
+                <td>${fabricacion.articuloDescripcion}</td>
+                <td>${fechaVisible}</td>
+                <td>${fabricacion.cantidad}</td>
+            </tr>
+        `;
+
+    });
+    fabricacionesOrdenadas.forEach(fabricacion => {
+
+        const partesFecha =
+            fabricacion.fecha.split("-");
+
+        const fechaVisible =
+            partesFecha.length === 3
+                ? `${partesFecha[2]}/${partesFecha[1]}/${partesFecha[0]}`
+                : fabricacion.fecha;
+
+        filas += `
+            <tr>
+                <td>${fabricacion.articuloCodigo}</td>
+                <td>${fabricacion.articuloDescripcion}</td>
+                <td>${fechaVisible}</td>
+                <td>${fabricacion.cantidad}</td>
+            </tr>
+        `;
+    });
+
+    contenedor.innerHTML = `
+            <h3 class="titulo-despiece">
+            🏭 Última fabricación por artículo
+        </h3>
+
+        <div class="tabla-contenedor">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Artículo</th>
+                        <th>Descripción</th>
+                        <th>Última fecha</th>
+                        <th>Cantidad</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    ${filasUltimas}
+                </tbody>
+            </table>
+        </div>
+        <h3 class="titulo-despiece">
+            📋 Historial de fabricación
+        </h3>
+
+        <div class="tabla-contenedor">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Artículo</th>
+                        <th>Descripción</th>
+                        <th>Fecha</th>
+                        <th>Cantidad fabricada</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    ${filas}
+                </tbody>
+            </table>
+        </div>
+    `;
 }
