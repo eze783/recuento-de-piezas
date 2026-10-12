@@ -1766,6 +1766,217 @@ function verRecuento(indice) {
     `;
 }
 
+function mostrarEntradas() {
+
+    contenido.innerHTML = `
+        <div class="pantalla">
+
+            <div class="encabezado-pantalla">
+                <h2>📥 Entradas</h2>
+                <p>Registro de ingreso de piezas al stock</p>
+            </div>
+ <div class="encabezado-pantalla">
+                <h3>📋 Entradas registradas</h3>
+                <p>Historial de ingresos de piezas</p>
+            </div>
+                        <div class="tabla-contenedor">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Pieza</th>
+                            <th>Cantidad</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="listaEntradas">
+                    </tbody>
+
+                </table>
+
+            </div>
+            <div class="formulario">
+
+                <label>
+                    Pieza
+                </label>
+
+                <select id="piezaEntrada">
+
+                    <option value="">
+                        Seleccionar pieza
+                    </option>
+
+                </select>
+
+                <label>
+                    Cantidad
+                </label>
+
+                <input
+                    type="number"
+                    id="cantidadEntrada"
+                    min="1"
+                    placeholder="Ingrese la cantidad"
+                >
+
+                <div class="acciones-formulario">
+
+                    <button
+                        class="boton-principal"
+                        onclick="registrarEntrada()">
+
+                        📥 Registrar entrada
+
+                    </button>
+
+                    <button
+                        class="boton-secundario"
+                        onclick="volverAlInicio()">
+
+                        ← Volver
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+    `;
+
+     const selector = document.getElementById("piezaEntrada");
+
+    const piezas = {};
+
+    articulos.forEach(articulo => {
+
+        if (!articulo.piezas) {
+            return;
+        }
+
+        articulo.piezas.forEach(pieza => {
+
+            if (!piezas[pieza.codigo]) {
+
+                piezas[pieza.codigo] = {
+                    codigo: pieza.codigo,
+                    descripcion: pieza.descripcion
+                };
+
+            }
+
+        });
+
+    });
+
+    Object.values(piezas).forEach(pieza => {
+
+        selector.innerHTML += `
+            <option value="${pieza.codigo}">
+                ${pieza.codigo} - ${pieza.descripcion}
+            </option>
+        `;
+
+    });   
+        const listaEntradas = document.getElementById("listaEntradas");
+
+    const entradas = JSON.parse(
+        localStorage.getItem("entradas")
+    ) || [];
+
+    if (entradas.length === 0) {
+
+        listaEntradas.innerHTML = `
+            <tr>
+                <td colspan="3">
+                    No hay entradas registradas todavía.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+    entradas.forEach(entrada => {
+
+        const pieza = Object.values(piezas).find(
+            pieza => pieza.codigo === entrada.codigo
+        );
+
+        const descripcion = pieza
+            ? pieza.descripcion
+            : "";
+
+        listaEntradas.innerHTML += `
+            <tr>
+
+                <td>
+                    <strong>${entrada.codigo}</strong>
+                    ${descripcion ? " - " + descripcion : ""}
+                </td>
+
+                <td>
+                    ${entrada.cantidad}
+                </td>
+
+                <td>
+                    ${entrada.fecha}
+                </td>
+
+            </tr>
+        `;
+
+    });
+}
+function registrarEntrada() {
+
+    const codigo = document.getElementById("piezaEntrada").value;
+    const cantidad = Number(document.getElementById("cantidadEntrada").value);
+
+    if (!codigo) {
+
+        alert("Seleccioná una pieza.");
+
+        return;
+    }
+
+    if (!cantidad || cantidad <= 0) {
+
+        alert("Ingresá una cantidad válida.");
+
+        return;
+    }
+
+    const piezaSeleccionada = codigo;
+
+    const entradas = JSON.parse(
+        localStorage.getItem("entradas")
+    ) || [];
+
+    entradas.push({
+
+        codigo: piezaSeleccionada,
+
+        cantidad: cantidad,
+
+        fecha: new Date().toLocaleString()
+
+    });
+
+    localStorage.setItem(
+        "entradas",
+        JSON.stringify(entradas)
+    );
+
+    alert("Entrada registrada correctamente.");
+
+    document.getElementById("piezaEntrada").value = "";
+    document.getElementById("cantidadEntrada").value = "";
+
+}
 function mostrarPiezas() {
 
     contenido.innerHTML = `
@@ -1878,6 +2089,7 @@ function mostrarPiezas() {
     });
 
 }
+
 function mostrarFaltantes() {
 
     contenido.innerHTML = `
@@ -1983,221 +2195,7 @@ function mostrarFaltantes() {
     }
 
 }
-function mostrarEntradas() {
 
-    contenido.innerHTML = `
-        <div class="pantalla">
-
-            <div class="encabezado-pantalla">
-                <h2>📥 Entradas</h2>
-                <p>Registro de ingreso de piezas al stock</p>
-            </div>
-
-            <div class="encabezado-pantalla">
-                <h3>📋 Entradas registradas</h3>
-                <p>Historial de ingresos de piezas</p>
-            </div>
-
-            <div class="tabla-contenedor">
-
-                <table>
-
-                    <thead>
-                        <tr>
-                            <th>Pieza</th>
-                            <th>Cantidad</th>
-                            <th>Fecha</th>
-                        </tr>
-                    </thead>
-
-                    <tbody id="listaEntradas">
-                    </tbody>
-
-                </table>
-
-            </div>
-
-            <div class="formulario">
-
-                <label>
-                    Pieza
-                </label>
-
-                <select id="piezaEntrada">
-
-                    <option value="">
-                        Seleccionar pieza
-                    </option>
-
-                </select>
-
-                <label>
-                    Cantidad
-                </label>
-
-                <input
-                    type="number"
-                    id="cantidadEntrada"
-                    min="1"
-                    placeholder="Ingrese la cantidad"
-                >
-
-                <div class="acciones-formulario">
-
-                    <button
-                        class="boton-principal"
-                        onclick="registrarEntrada()">
-
-                        📥 Registrar entrada
-
-                    </button>
-
-                    <button
-                        class="boton-secundario"
-                        onclick="volverAlInicio()">
-
-                        ← Volver
-
-                    </button>
-
-                </div>
-
-            </div>
-
-        </div>
-    `;
-
-    const selector = document.getElementById("piezaEntrada");
-
-    const piezas = {};
-
-    articulos.forEach(articulo => {
-
-        if (!articulo.piezas) {
-            return;
-        }
-
-        articulo.piezas.forEach(pieza => {
-
-            if (!piezas[pieza.codigo]) {
-
-                piezas[pieza.codigo] = {
-                    codigo: pieza.codigo,
-                    descripcion: pieza.descripcion
-                };
-
-            }
-
-        });
-
-    });
-
-    Object.values(piezas).forEach(pieza => {
-
-        selector.innerHTML += `
-            <option value="${pieza.codigo}">
-                ${pieza.codigo} - ${pieza.descripcion}
-            </option>
-        `;
-
-    });
-
-    const listaEntradas = document.getElementById("listaEntradas");
-
-    const entradas = JSON.parse(
-        localStorage.getItem("entradas")
-    ) || [];
-
-    if (entradas.length === 0) {
-
-        listaEntradas.innerHTML = `
-            <tr>
-                <td colspan="3">
-                    No hay entradas registradas todavía.
-                </td>
-            </tr>
-        `;
-
-        return;
-    }
-
-    entradas.forEach(entrada => {
-
-        const pieza = Object.values(piezas).find(
-            pieza => pieza.codigo === entrada.codigo
-        );
-
-        const descripcion = pieza
-            ? pieza.descripcion
-            : "";
-
-        listaEntradas.innerHTML += `
-            <tr>
-
-                <td>
-                    <strong>${entrada.codigo}</strong>
-                    ${descripcion ? " - " + descripcion : ""}
-                </td>
-
-                <td>
-                    ${entrada.cantidad}
-                </td>
-
-                <td>
-                    ${entrada.fecha}
-                </td>
-
-            </tr>
-        `;
-
-    });
-}
-function registrarEntrada() {
-
-    const codigo = document.getElementById("piezaEntrada").value;
-    const cantidad = Number(document.getElementById("cantidadEntrada").value);
-
-    if (!codigo) {
-
-        alert("Seleccioná una pieza.");
-
-        return;
-    }
-
-    if (!cantidad || cantidad <= 0) {
-
-        alert("Ingresá una cantidad válida.");
-
-        return;
-    }
-
-    const piezaSeleccionada = codigo;
-
-    const entradas = JSON.parse(
-        localStorage.getItem("entradas")
-    ) || [];
-
-    entradas.push({
-
-        codigo: piezaSeleccionada,
-
-        cantidad: cantidad,
-
-        fecha: new Date().toLocaleString()
-
-    });
-
-    localStorage.setItem(
-        "entradas",
-        JSON.stringify(entradas)
-    );
-
-    alert("Entrada registrada correctamente.");
-
-    document.getElementById("piezaEntrada").value = "";
-    document.getElementById("cantidadEntrada").value = "";
-
-}
 function mostrarSalidas() {
 
     contenido.innerHTML = `
@@ -2254,7 +2252,6 @@ function mostrarSalidas() {
                 </div>
 
             </div>
-
             <div class="encabezado-pantalla">
                 <h3>📋 Salidas registradas</h3>
                 <p>Historial de salidas de piezas</p>
@@ -2316,7 +2313,6 @@ function mostrarSalidas() {
         `;
 
     });
-
     const listaSalidas = document.getElementById("listaSalidas");
 
     const salidas = JSON.parse(
@@ -2361,7 +2357,6 @@ function mostrarSalidas() {
                 <td>
                     ${salida.fecha}
                 </td>
-
                 <td>
 
                     <button
@@ -2373,7 +2368,6 @@ function mostrarSalidas() {
                     </button>
 
                 </td>
-
             </tr>
         `;
 
@@ -2425,6 +2419,7 @@ function registrarSalida() {
     document.getElementById("cantidadSalida").value = "";
 
 }
+
 function eliminarSalida(indice) {
 
     const salidas = JSON.parse(
@@ -2447,5 +2442,78 @@ function eliminarSalida(indice) {
     );
 
     mostrarSalidas();
+
+}
+function mostrarPanelGeneral() {
+
+    contenido.innerHTML = `
+
+        <div class="pantalla">
+
+            <div class="encabezado-pantalla">
+
+                <h2>📊 Panel general</h2>
+
+                <p>
+                    Resumen general de la aplicación
+                </p>
+
+            </div>
+
+            <div class="tarjetas-panel">
+
+                <div class="tarjeta-panel">
+                    <h3>📦 Artículos</h3>
+                    <p id="totalArticulos">0</p>
+                </div>
+
+                <div class="tarjeta-panel">
+                    <h3>🔧 Piezas</h3>
+                    <p id="totalPiezas">0</p>
+                </div>
+
+                <div class="tarjeta-panel">
+                    <h3>⚠️ Faltantes</h3>
+                    <p id="totalFaltantes">0</p>
+                </div>
+
+            </div>
+
+            <div class="acciones-formulario">
+
+                <button
+                    class="boton-secundario"
+                    onclick="volverAlInicio()">
+
+                    ← Volver
+
+                </button>
+
+            </div>
+
+        </div>
+
+    `;
+    document.getElementById("totalArticulos").textContent =
+        articulos.length;
+
+    const piezasPanel = {};
+
+    articulos.forEach(articulo => {
+
+        if (!articulo.piezas) {
+            return;
+        }
+
+        articulo.piezas.forEach(pieza => {
+
+            piezasPanel[pieza.codigo] = true;
+
+        });
+
+    });
+
+    document.getElementById("totalPiezas").textContent =
+        Object.keys(piezasPanel).length;
 
 }
